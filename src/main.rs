@@ -216,7 +216,7 @@ fn main() {
             };
 
             // check semantics
-            match Checker::new().check_program(program_ast.clone()) {
+            match Checker::new().check_program(&program_ast) {
                 Ok(()) => (),
                 Err(why) => panic!("Semantic analysis failed with: {}", why)
             };

@@ -48,28 +48,28 @@ impl Checker {
 		}
 	}
 
-	pub fn check_program<T: Field>(&mut self, prog: Prog<T>) -> Result<(), String> {
-		for func in prog.functions {
+	pub fn check_program<T: Field>(&mut self, prog: &Prog<T>) -> Result<(), String> {
+		for func in prog.functions.iter() {
 			self.functions.insert(FunctionDeclaration {
 				id: func.clone().id,
 				return_count: func.clone().return_count,
 				arg_count: func.clone().arguments.len()
 			});
-			self.check_function(func)?;
+			self.check_function(&func)?;
 		}
 		Ok(())
 	}
 
-	fn check_function<T: Field>(&mut self, funct: Function<T>) -> Result<(), String> {
+	fn check_function<T: Field>(&mut self, funct: &Function<T>) -> Result<(), String> {
 		self.level += 1;
-		for arg in funct.arguments {
+		for arg in funct.arguments.iter() {
 			self.scope.insert(Symbol {
 				id: arg.id.to_string(),
 				level: self.level
 			});
 		}
-		for stat in funct.statements {
-			self.check_statement(stat)?;
+		for stat in funct.statements.iter() {
+			self.check_statement(&stat)?;
 		}
 		let current_level = self.level.clone();
 		let current_scope = self.scope.clone();
@@ -81,13 +81,13 @@ impl Checker {
 		Ok(())
 	}
 
-	fn check_statement<T: Field>(&mut self, stat: Statement<T>) -> Result<(), String> {
-		match stat {
-			Statement::Return(list) => {
+	fn check_statement<T: Field>(&mut self, stat: &Statement<T>) -> Result<(), String> {
+		match *stat {
+			Statement::Return(ref list) => {
 				self.check_expression_list(list)?;
 				Ok(())
 			}
-			Statement::Definition(id, expr) | Statement::Compiler(id, expr) => {
+			Statement::Definition(ref id, ref expr) | Statement::Compiler(ref id, ref expr) => {
 				self.check_expression(expr)?;
 				self.scope.insert(Symbol {
 					id: id.to_string(),
@@ -96,12 +96,12 @@ impl Checker {
 				Ok(())
 
 			}
-			Statement::Condition(lhs, rhs) => {
+			Statement::Condition(ref lhs, ref rhs) => {
 				self.check_expression(lhs)?;
 				self.check_expression(rhs)?;
 				Ok(())
 			}
-			Statement::For(id, _, _, statements) => {
+			Statement::For(ref id, _, _, ref statements) => {
 				self.level += 1;
 				let index = Symbol {
 					id: id.to_string(),
@@ -115,9 +115,9 @@ impl Checker {
 				self.level -= 1;
 				Ok(())
 			},
-            Statement::MultipleDefinition(ids, rhs) => {
+            Statement::MultipleDefinition(ref ids, ref rhs) => {
         		// All elements of the left side have to be identifiers
-                match rhs {
+                match *rhs {
                 	// Right side has to be a function call
                     Expression::FunctionCall(ref fun_id, ref arguments) => {
                     	match self.find_function(fun_id, arguments) {
@@ -144,25 +144,25 @@ impl Checker {
 		}
 	}
 
-	fn check_expression<T: Field>(&mut self, expr: Expression<T>) -> Result<(), String> {
-		match expr {
-			Expression::Identifier(id) => {
+	fn check_expression<T: Field>(&mut self, expr: &Expression<T>) -> Result<(), String> {
+		match *expr {
+			Expression::Identifier(ref id) => {
 				// check that `id` is defined in the scope
 				match self.scope.iter().find(|symbol| symbol.id == id.to_string()) {
 					Some(_) => Ok(()),
 					None => Err(format!("{} is undefined", id.to_string())),
 				}
 			}
-			Expression::Add(box e1, box e2) | Expression::Sub(box e1, box e2) | Expression::Mult(box e1, box e2) |
-			Expression::Div(box e1, box e2) | Expression::Pow(box e1, box e2) => {
-				self.check_expression(e1)?;
-				self.check_expression(e2)?;
+			Expression::Add(ref e1, ref e2) | Expression::Sub(ref e1, ref e2) | Expression::Mult(ref e1, ref e2) |
+			Expression::Div(ref e1, ref e2) | Expression::Pow(ref e1, ref e2) => {
+				self.check_expression(&e1)?;
+				self.check_expression(&e2)?;
 				Ok(())
 			}
-			Expression::IfElse(box condition, box consequence, box alternative) => {
-				self.check_condition(condition)?; 
-				self.check_expression(consequence)?;
-				self.check_expression(alternative)?;
+			Expression::IfElse(ref condition, ref consequence, ref alternative) => {
+				self.check_condition(&condition)?; 
+				self.check_expression(&consequence)?;
+				self.check_expression(&alternative)?;
 				Ok(())
 			}
 			Expression::FunctionCall(ref fun_id, ref arguments) => {
@@ -171,7 +171,7 @@ impl Checker {
 					Some(f) => {
 						if f.return_count == 1 { // Functions must return a single value when not in a MultipleDefinition
 							for expr in arguments {
-								self.check_expression(expr.clone())?;
+								self.check_expression(&expr)?;
 							}
 							return Ok(())
 						}
@@ -184,20 +184,20 @@ impl Checker {
 		}
 	}
 
-	fn check_expression_list<T: Field>(&mut self, list: ExpressionList<T>) -> Result<(), String> {
-		for expr in list.expressions { // implement Iterator trait?
-			self.check_expression(expr)?
+	fn check_expression_list<T: Field>(&mut self, list: &ExpressionList<T>) -> Result<(), String> {
+		for expr in list.expressions.iter() { // implement Iterator trait?
+			self.check_expression(&expr)?
 		}
 		Ok(())
 	}
 
-	fn check_condition<T: Field>(&mut self, cond: Condition<T>) -> Result<(), String> {
-		match cond {
-			Condition::Lt(e1, e2) |
-			Condition::Le(e1, e2) |
-			Condition::Eq(e1, e2) |
-			Condition::Ge(e1, e2) |
-			Condition::Gt(e1, e2) => {
+	fn check_condition<T: Field>(&mut self, cond: &Condition<T>) -> Result<(), String> {
+		match *cond {
+			Condition::Lt(ref e1, ref e2) |
+			Condition::Le(ref e1, ref e2) |
+			Condition::Eq(ref e1, ref e2) |
+			Condition::Ge(ref e1, ref e2) |
+			Condition::Gt(ref e1, ref e2) => {
 				self.check_expression(e1)?;
 				self.check_expression(e2)?;
 				Ok(())
@@ -224,7 +224,7 @@ mod tests {
 			Expression::Identifier(String::from("b"))
 		);
 		let mut checker = Checker::new();
-		assert_eq!(checker.check_statement(statement), Err("b is undefined".to_string()));
+		assert_eq!(checker.check_statement(&statement), Err("b is undefined".to_string()));
 	}
 
 	#[test]
@@ -241,7 +241,7 @@ mod tests {
 			level: 0
 		});
 		let mut checker = Checker::new_with_args(scope, 1, HashSet::new());
-		assert_eq!(checker.check_statement(statement), Ok(()));
+		assert_eq!(checker.check_statement(&statement), Ok(()));
 	}
 
 	#[test]
@@ -286,7 +286,7 @@ mod tests {
         };
 
 		let mut checker = Checker::new();
-		assert_eq!(checker.check_program(prog), Err("a is undefined".to_string()));
+		assert_eq!(checker.check_program(&prog), Err("a is undefined".to_string()));
 	}
 
 	#[test]
@@ -336,7 +336,7 @@ mod tests {
         };
 
 		let mut checker = Checker::new();
-		assert_eq!(checker.check_program(prog), Ok(()));
+		assert_eq!(checker.check_program(&prog), Ok(()));
 	}
 
 	#[test]
@@ -366,7 +366,7 @@ mod tests {
 		};
 
 		let mut checker = Checker::new();
-		assert_eq!(checker.check_function(foo), Err("i is undefined".to_string()));
+		assert_eq!(checker.check_function(&foo), Err("i is undefined".to_string()));
 	}
 
 	#[test]
@@ -396,7 +396,7 @@ mod tests {
 		};
 
 		let mut checker = Checker::new();
-		assert_eq!(checker.check_function(foo), Ok(()));
+		assert_eq!(checker.check_function(&foo), Ok(()));
 	}
 
 	#[test]
@@ -428,7 +428,7 @@ mod tests {
 		};
 
 		let mut checker = Checker::new_with_args(HashSet::new(), 0, functions);
-		assert_eq!(checker.check_function(bar), Err(("foo returns 2 values but left side is of size 1".to_string())));
+		assert_eq!(checker.check_function(&bar), Err(("foo returns 2 values but left side is of size 1".to_string())));
 	}
 
 	#[test]
@@ -460,7 +460,7 @@ mod tests {
 		};
 
 		let mut checker = Checker::new_with_args(HashSet::new(), 0, functions);
-		assert_eq!(checker.check_function(bar), Err(("foo returns 2 values but is called outside of a definition".to_string())));
+		assert_eq!(checker.check_function(&bar), Err(("foo returns 2 values but is called outside of a definition".to_string())));
 	}
 
 	#[test]
@@ -481,7 +481,7 @@ mod tests {
 		};
 
 		let mut checker = Checker::new_with_args(HashSet::new(), 0, HashSet::new());
-		assert_eq!(checker.check_function(bar), Err(("Function definition for function foo with 0 argument(s) not found.".to_string())));
+		assert_eq!(checker.check_function(&bar), Err(("Function definition for function foo with 0 argument(s) not found.".to_string())));
 	}
 
 	#[test]
@@ -502,7 +502,7 @@ mod tests {
 		};
 
 		let mut checker = Checker::new_with_args(HashSet::new(), 0, HashSet::new());
-		assert_eq!(checker.check_function(bar), Err(("Function definition for function foo with 0 argument(s) not found.".to_string())));
+		assert_eq!(checker.check_function(&bar), Err(("Function definition for function foo with 0 argument(s) not found.".to_string())));
 	}
 
 	#[test]
@@ -525,7 +525,7 @@ mod tests {
 		};
 
 		let mut checker = Checker::new_with_args(HashSet::new(), 0, HashSet::new());
-		assert_eq!(checker.check_function(bar), Err(("a is undefined".to_string())));
+		assert_eq!(checker.check_function(&bar), Err(("a is undefined".to_string())));
 	}
 
 	#[test]
@@ -569,6 +569,6 @@ mod tests {
 		};
 
 		let mut checker = Checker::new_with_args(HashSet::new(), 0, functions);
-		assert_eq!(checker.check_function(bar), Ok(()));
+		assert_eq!(checker.check_function(&bar), Ok(()));
 	}
 }
