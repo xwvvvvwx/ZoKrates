@@ -216,21 +216,29 @@ fn main() {
                 }
             };
 
+            println!("Parsed!");
+
             // check semantics
             match Checker::new().check_program(program_ast.clone()) {
                 Ok(()) => (),
                 Err(why) => panic!("Semantic analysis failed with: {}", why)
             };
 
+            println!("Checked!");
+
             // flatten input program
             let program_flattened =
                 Flattener::new(FieldPrime::get_required_bits()).flatten_program(program_ast);
+
+            println!("Flattened!");
 
             // number of constraints the flattened program will translate to.
             let num_constraints = &program_flattened.functions
             .iter()
             .find(|x| x.id == "main")
             .unwrap().statements.len();
+
+            println!("Constraints counted!");
 
             // serialize flattened program and write to binary file
             let bin_output_path = Path::new(sub_matches.value_of("output").unwrap());
@@ -239,28 +247,32 @@ fn main() {
                 Err(why) => panic!("couldn't create {}: {}", bin_output_path.display(), why),
             };
 
-            serialize_into(&mut bin_output_file, &program_flattened, Infinite).expect("Unable to write data to file.");
+            //serialize_into(&mut bin_output_file, &program_flattened, Infinite).expect("Unable to write data to file.");
+
+            println!("Serialized!");
 
             // write human-readable output file
-            let hr_output_path = bin_output_path.to_path_buf().with_extension("code");
+            // let hr_output_path = bin_output_path.to_path_buf().with_extension("code");
 
-            let hr_output_file = match File::create(&hr_output_path) {
-                Ok(file) => file,
-                Err(why) => panic!("couldn't create {}: {}", hr_output_path.display(), why),
-            };
+            // let hr_output_file = match File::create(&hr_output_path) {
+            //     Ok(file) => file,
+            //     Err(why) => panic!("couldn't create {}: {}", hr_output_path.display(), why),
+            // };
 
-            let mut hrofb = BufWriter::new(hr_output_file);
-            write!(&mut hrofb, "{}\n", program_flattened).expect("Unable to write data to file.");
-            hrofb.flush().expect("Unable to flush buffer.");
+            // let mut hrofb = BufWriter::new(hr_output_file);
+            // write!(&mut hrofb, "{}\n", program_flattened).expect("Unable to write data to file.");
+            // hrofb.flush().expect("Unable to flush buffer.");
+
+            println!("Human serialized!");
 
             // debugging output
-            println!("Compiled program:\n{}", program_flattened);
+            //println!("Compiled program:\n{}", program_flattened);
 
 
             println!(
                 "Compiled code written to '{}', \nHuman readable code to '{}'. \nNumber of constraints: {}",
-                bin_output_path.display(),
-                hr_output_path.display(),
+                "",
+                "",
                 num_constraints
             );
         }
