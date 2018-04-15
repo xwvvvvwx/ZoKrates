@@ -1,0 +1,7 @@
+def wtax(debt,wealth):
+  x = if wealth == 1 then 0 else 1 fi
+  return 1
+
+def main(debt, wealth):
+  tax = wtax(debt,wealth)
+  return tax

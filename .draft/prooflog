@@ -1,0 +1,29 @@
+Generating proof...
+Using Witness: {~one: 1, ~out: 3, b: 2, a: 1}
+Public inputs: [1, 1, 2, 3]
+Private inputs: []
+* Elements of w skipped: 0 (-nan%)
+* Elements of w processed with special addition: 0 (-nan%)
+* Elements of w remaining: 0 (-nan%)
+* Elements of w skipped: 0 (-nan%)
+* Elements of w processed with special addition: 0 (-nan%)
+* Elements of w remaining: 0 (-nan%)
+* Elements of w skipped: 0 (0.00%)
+* Elements of w processed with special addition: 0 (0.00%)
+* Elements of w remaining: 1 (100.00%)
+* Elements of w skipped: 0 (0.00%)
+* Elements of w processed with special addition: 1 (33.33%)
+* Elements of w remaining: 2 (66.67%)
+* G1 elements in proof: 7
+* G2 elements in proof: 1
+* Proof size in bits: 2294
+Proof:
+A = 0x3709c24904a0dadc5463ef93ae8d0f5daff9be928472db256b11e1d32da20ef, 0x20896e8f0caa747016756de23194bf495b4495a5bfbe32797ad14c9f5b242a17
+A_p = 0x2c552bdf67305723c6830a86b3eb50ad1b2fd7599b092d1de1caa3b633f2e8d1, 0x1075efddfcdaee6275db36629f69ddc57595324692238b2b5839a9d155417781
+B = [0x668f165f7b6239650f7c8267ec412c15fa03180d92241955874a7d185cd8df8, 0x2766414548562839eaab514824853d48c40f51736f7bb9a9154dad85d0156907], [0x2dff08afec3e3410839fe0c803f2a4de217f8192d26536a9e8d2005e230fc816, 0xfd1d36c69e07269bbf3b8d3fd21c1cdc88393c8349be2739470ab5dfd7eb897]
+B_p = 0x5199442b44571e81a177f3c400687250287b75ec2663f43dd4dfdefcb077bb2, 0x161cab30f689a6b0548c56d47e85e86c10baf3e967643a208467850d234914b3
+C = 0xed4532dfae7a5c368a566585412dfcdd12f17ee1531b7ca4eecf22ac83f973b, 0x303c306eabdedac946e519492cfd3cf7c627d697e3432990618f41804ccb5dff
+C_p = 0x221a19e21297a9f02764b48474d1445f1d98d0da911a4ea59ca599e72ecf98ef, 0x1bd33139faab052fed73ca8ce3cbe6c9f93dc1985e877a024f3426779e166c93
+H = 0x8bebe80560f616db0131daaf24e2625bd0d382901a52862ee2309a72aa77492, 0x982f7a287ca736295f887be33206d3c777ea30e6e0d71c0af7a188a7f77e35b
+K = 0x20439641c75b0bb4da43d24a62749d90912f03d1d0223e322af3d47f82db5602, 0x27adf725a02e778991370e0329a5affc45714a4b9622e64282d93724372e10fe
+generate-proof successful: true
